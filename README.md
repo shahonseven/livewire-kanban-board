@@ -50,6 +50,11 @@ public function statuses() : Collection
     //
 }
 
+public function swimlanes() : Collection 
+{
+    //
+}
+
 public function records() : Collection 
 {
     //
@@ -57,8 +62,9 @@ public function records() : Collection
 ```
 
 As you may have noticed, both methods return a Collection. `statuses()` refers to all the different status values
-your data may have in different points of time. `records()` on the other hand, stand for the data you want to show
-that could be in any of those previously defined `statuses()` collection.
+your data may have in different points of time. `swimlanes()` refers to the different swimlane values your data may have.
+`records()` on the other hand, stand for the data you want to show that could be in any of those previously defined
+`statuses()` collection.
 
 To show how these two methods work together, let's discuss an example of Sales Orders and their different status
 along the sales process: Registered, Awaiting Confirmation, Confirmed, Delivered. Each Sales Order might be in a different
@@ -90,6 +96,30 @@ public function statuses() : Collection
 
 For each `status` we define, we must return an array with at least 2 keys: `id` and `title`.
 
+And the following collection for `swimlanes()`
+
+```php
+public function swimlanes() : Collection
+{
+    return collect([
+        [
+            'id' => 'high',
+            'title' => 'High Priority',
+        ],
+        [
+            'id' => 'medium',
+            'title' => 'Medium Priority',
+        ],
+        [
+            'id' => 'low',
+            'title' => 'Low Priority',
+        ],
+    ]);
+}
+```
+
+For each `swimlane` we define, we must return an array with at least 2 keys: `id` and `title`.
+
 Now, for `records()` we may define a list of Sales Orders that come from an Eloquent model in our project
 
 ```php
@@ -101,18 +131,19 @@ public function records() : Collection
                 'id' => $salesOrder->id,
                 'title' => $salesOrder->client,
                 'status' => $salesOrder->status,
+                'swimlane' => $salesOrder->swimlane,
             ];
         });
 }
 ```
 
 As you might see in the above snippet, we must return a collection of array items where each item must have at least
-3 keys: `id`, `title` and `status`. The last one is of most importance since it is going to be used to match to which
-`status` the `record` belongs to. For this matter, the component matches `status` and `records` with the following 
-comparison
+4 keys: `id`, `title` and `status` and `swimlane`. The last two are of most importance since it is going to be used
+to match to which `status` the `record` belongs to. For this matter, the component matches `status`, `swimlane` and
+`records` with the following comparison
 
 ```php
-$status['id'] == $record['status'];
+$status['id'] == $record['status'] && $swimlane['id'] == $record['swimlane'];
 ``` 
 
 To render the component in a view, just use the Livewire tag or include syntax
